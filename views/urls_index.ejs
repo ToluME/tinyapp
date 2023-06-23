@@ -21,14 +21,22 @@
     <header>
         <%- include('partials/_header') %>
       </header>
-      
+
     <main style="margin: 1em;">
+        <style>
+            .custom-btn {
+              background-color: white;
+              color: red;
+              border: 1px solid red;
+            }
+          </style>
       <h3>My URLs</h3>
       <table class="table">
         <thead>
           <tr>
             <th scope="col">Short URL ID</th>
             <th scope="col">Long URL</th>
+            <th scope="col">Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -36,6 +44,11 @@
             <tr>
               <td><%= id %></td>
               <td><%= urls[id] %></td>
+              <td>
+                <form method="POST" action="/urls/<%= id %>/delete">
+                  <button type="submit" class="btn btn-danger custom-btn">Delete</button>
+                </form>
+              </td>
             </tr>
           <% } %>
         </tbody>
