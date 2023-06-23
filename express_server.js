@@ -31,6 +31,12 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
+// Redirect shortURL
+app.get("/u/:id", (req, res) => {
+  const id = req.params.id;
+  const longURL = urlDatabase[id];
+  res.redirect(longURL);
+});
 // Route handler for handling POST requests to /urls and redirect
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
@@ -38,12 +44,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[id] = longURL;
   res.redirect(`/urls/${id}`);
 });
-// Redirect shortURL
-app.get("/u/:id", (req, res) => {
-  const id = req.params.id;
-  const longURL = urlDatabase[id];
-  res.redirect(longURL);
-});
+
 app.post("/urls/:id/delete", (req, res) => { //post request to handle delete and redirect
   const id = req.params.id;
   delete urlDatabase[id];
