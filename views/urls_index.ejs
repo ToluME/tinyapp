@@ -24,19 +24,28 @@
 
     <main style="margin: 1em;">
         <style>
-            .custom-btn {
+            .custom-btn-edit {
+             background-color: white;
+             color: blue;
+             border: 1px solid blue;
+            }
+            .custom-btn-delete {
               background-color: white;
               color: red;
               border: 1px solid red;
             }
-          </style>
+            </style>
+
+          
       <h3>My URLs</h3>
       <table class="table">
         <thead>
           <tr>
             <th scope="col">Short URL ID</th>
             <th scope="col">Long URL</th>
+            <th scope="col">Edit</th>
             <th scope="col">Delete</th>
+
           </tr>
         </thead>
         <tbody>
@@ -45,8 +54,11 @@
               <td><%= id %></td>
               <td><%= urls[id] %></td>
               <td>
-                <form method="POST" action="/urls/<%= id %>/delete">
-                  <button type="submit" class="btn btn-danger custom-btn">Delete</button>
+                <a href="/urls/<%= id %>/edit" class="btn btn-primary custom-btn-edit">Edit</a>
+              </td>
+              <td>
+                <form method="POST" action="/urls/<%= id %>/delete" style="display: inline;">
+                  <button type="submit" class="btn btn-danger custom-btn-delete">Delete</button>
                 </form>
               </td>
             </tr>
