@@ -44,7 +44,15 @@ app.post("/urls", (req, res) => {
   urlDatabase[id] = longURL;
   res.redirect(`/urls/${id}`);
 });
+app.post('/urls/:id', (req, res) => {
+  const id = req.params.id;
+  const newLongURL = req.body.longURL;
 
+  // Update the value of the stored long URL based on the new value
+  urlDatabase[id] = newLongURL;
+
+  res.redirect('/urls');
+});
 app.post("/urls/:id/delete", (req, res) => { //post request to handle delete and redirect
   const id = req.params.id;
   delete urlDatabase[id];
