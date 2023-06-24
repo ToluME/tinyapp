@@ -44,7 +44,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[id] = longURL;
   res.redirect(`/urls/${id}`);
 });
-app.post('/urls/:id', (req, res) => {
+app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   const newLongURL = req.body.longURL;
 
@@ -56,6 +56,11 @@ app.post('/urls/:id', (req, res) => {
 app.post("/urls/:id/delete", (req, res) => { //post request to handle delete and redirect
   const id = req.params.id;
   delete urlDatabase[id];
+  res.redirect("/urls");
+});
+app.post("/login", (req, res) => { //post request to handle login by username
+  const {username} = req.body;
+  res.cookie("username", username);
   res.redirect("/urls");
 });
 
