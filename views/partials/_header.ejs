@@ -18,17 +18,26 @@
           <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         </div>
           <div class="ml-auto">
-          <form class="form-inline ml-auto" method="POST" action="/login">
-            <label for="Username" ></label>
-              <input 
-              class="form-control mr-2"
-              type="text" 
-              name="username" 
-              placeholder="Username"
-              style="width: 300px;"
-              />
-              <button type="submit" class="btn btn-outline-dark">Login</button>
-          </form>
+         
+              <% if (username) { %>
+                <span class="text-dark ml-3">Logged in as: <%= username %></span>
+                &nbsp; <!-- Non-breaking space for spacing -->
+                <button type="submit" class="btn btn-outline-dark">Logout</button>
+      
+              <% } else { %>
+                <form class="form-inline ml-auto" method="POST" action="/login">
+                  <label for="Username" ></label>
+                    <input 
+                    class="form-control mr-2"
+                    type="text" 
+                    name="username" 
+                    placeholder="Username"
+                    style="width: 300px;"
+                    />
+                    <button type="submit" class="btn btn-outline-dark">Login</button>
+                  </form>
+                <% } %>
+          
         </div>
         </div>
       </div>
