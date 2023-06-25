@@ -68,9 +68,6 @@ app.post("/urls/:id/delete", (req, res) => { //post request to handle delete and
   delete urlDatabase[id];
   res.redirect("/urls");
 });
-// app.get("/login", (req, res) => {
-//   res.render("login", { username: req.cookies.username })
-// });
 app.post("/login", (req, res) => { //post request to handle login by username
   const username = req.body.username;
   res.cookie("username", username);
