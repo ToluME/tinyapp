@@ -99,7 +99,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("users");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
@@ -108,17 +108,28 @@ app.get('/register', (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  const { email, password } = req.body;
-  const userId = generateRandomString();
-  const newUser = {
-    id: userId,
-    email: email,
-    password: password,
-  };
-  users[userId] = newUser;
-  res.cookie("user_id", userId);
-  console.log(users);
-  res.redirect("/urls");
+  console.log("Hello");
+  const email = req.body.email;
+  const password = req.body.password;
+  // Empty email or password
+  if (!email || !password) {
+    return res.status(400).send("Email and password cannot be empty..");
+  } else if (getUserByEmail(email)) {
+    // Email already exists
+    return res.status(400).send("Email is already registered.");
+  } else {
+    // Generate User_id and create new user
+    const userId = generateRandomString();
+    const newUser = {
+      id: userId,
+      email: email,
+      password: password,
+    };
+    users[userId] = newUser;
+    res.cookie("user_id", userId);
+    console.log(users);
+    res.redirect("/urls");
+  }
 });
 
 app.listen(PORT, () => {
@@ -139,3 +150,13 @@ const generateRandomString = function() {
 };
 
 generateRandomString();
+
+const getUserByEmail = function(email) {
+  const usersArray = Object.values(users);//converts users object to an array
+  for (let user of usersArray) {
+    if (user.email === email) {
+      return user;
+    }
+  }
+  return null;
+};
