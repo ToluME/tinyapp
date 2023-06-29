@@ -53,6 +53,10 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+  // Check if user is logged in
+  if (!req.cookies.user_id) {
+    return res.redirect("/login");
+  }
   const user = req.cookies.users;
   res.render("urls_new", { user: user });
 });
@@ -69,10 +73,18 @@ app.get("/urls/:id", (req, res) => {
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
+  if (!longURL) {
+    // Shortened URL does not exist
+    return res.status(404).send("No URL with provided id in our database.");
+  }
   res.redirect(longURL);
 });
 
 app.post("/urls", (req, res) => {
+  // Check if user is logged in
+  if (!req.cookies.user_id) {
+    return res.status(401).send("Login required");
+  }
   const longURL = req.body.longURL;
   const id = generateRandomString();
   urlDatabase[id] = longURL;
@@ -93,10 +105,17 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
+  //Check if user is already logged in
+  if (req.cookies.user_id) {
+    return res.redirect("/urls");
+  }
   res.render("login");
 });
 
 app.get('/register', (req, res) => {
+  if (req.cookies.user_id) {
+    return res.redirect("/urls");
+  }
   res.render("registration");
 });
 
