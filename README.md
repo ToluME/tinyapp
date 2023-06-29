@@ -18,7 +18,7 @@ Dependencies:
 
 Usage:
 * Open your web browser and access the application at http://localhost:8080.
-* Log in with a new username or an existing one.
+* Login with email and password or register with email and password.
 * After logging in, you will be able to create shortened URLs for long URLs.
 * Manage your URLs by viewing, editing, or deleting them.
 * Access the shortened URLs to be redirected to the original long URLs.
