@@ -6,9 +6,24 @@ const PORT = 8080; // default port 8080
 app.set("view engine", "ejs"); // Set view engine
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b2xVn2: {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "zSA9rT",
+  },
+  s9m5xK: {
+    longURL: "http://www.google.com",
+    userID: "RdEYCL",
+  },
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
+
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -47,10 +62,19 @@ app.get("/urls", (req, res) => {
   const user = users[userId];
   const templateVars = {
     user: user,
-    urls: urlDatabase
+    urls: {},
   };
+  // Iterate over the urlDatabase object to access each URL entry
+  for (const key in urlDatabase) {
+    const urlEntry = urlDatabase[key];
+    const longURL = urlEntry.longURL;
+    // Add the longURL to the templateVars.urls object using the same key
+    templateVars.urls[key] = longURL;
+  }
+
   res.render("urls_index", templateVars);
 });
+
 
 app.get("/urls/new", (req, res) => {
   // Check if user is logged in
@@ -64,37 +88,42 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
-    longURL: urlDatabase[req.params.id],
-    user: req.cookies["users"]
+    longURL: urlDatabase[req.params.id].longURL,
+    user: users[req.cookies.user_id]
   };
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
-  const longURL = urlDatabase[id];
-  if (!longURL) {
+  const urlEntry = urlDatabase[id];
+  if (!urlEntry) {
     // Shortened URL does not exist
     return res.status(404).send("No URL with provided id in our database.");
   }
-  res.redirect(longURL);
+  res.redirect(urlEntry.longURL);
 });
+
 
 app.post("/urls", (req, res) => {
   // Check if user is logged in
-  if (!req.cookies.user_id) {
+  const userId = req.cookies.user_id;
+  if (!userId) {
     return res.status(401).send("Login required");
   }
   const longURL = req.body.longURL;
   const id = generateRandomString();
-  urlDatabase[id] = longURL;
+  urlDatabase[id] = {
+    longURL: longURL,
+    userID: userId
+  };
   res.redirect(`/urls/${id}`);
 });
 
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   const newLongURL = req.body.longURL;
-  urlDatabase[id] = newLongURL;
+  urlDatabase[id].longURL = newLongURL;
   res.redirect('/urls');
 });
 
