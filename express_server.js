@@ -92,23 +92,31 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
-app.post("/login", (req, res) => {
-  const users = req.body.users;
-  res.cookie("users", users);
-  res.redirect("/urls");
-});
-
-app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
-  res.redirect("/urls");
+app.get("/login", (req, res) => {
+  res.render("login");
 });
 
 app.get('/register', (req, res) => {
-  res.render('registration');
+  res.render("registration");
+});
+
+app.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const user = getUserByEmail(email);
+  // User not found
+  if (!user) {
+    return res.status(403).send("Invalid email or password.");
+  }
+  // Check if password matches
+  if (user.password !== password) {
+    return res.status(403).send("Invalid email or password.");
+  }
+  res.cookie("user_id", user.id);
+  res.redirect("/urls");
 });
 
 app.post("/register", (req, res) => {
-  console.log("Hello");
   const email = req.body.email;
   const password = req.body.password;
   // Empty email or password
@@ -130,6 +138,10 @@ app.post("/register", (req, res) => {
     console.log(users);
     res.redirect("/urls");
   }
+});
+app.post("/logout", (req, res) => {
+  res.clearCookie("user_id");
+  res.redirect("/login");
 });
 
 app.listen(PORT, () => {
