@@ -2,6 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080; // default port 8080
+const bcrypt = require("bcryptjs");
 
 app.set("view engine", "ejs"); // Set view engine
 
@@ -203,12 +204,8 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = getUserByEmail(email);
-  // User not found
-  if (!user) {
-    return res.status(403).send("Invalid email or password.");
-  }
-  // Check if password matches
-  if (user.password !== password) {
+  // User not found or password doesn't match
+  if (!user || !bcrypt.compareSync(password, user.password)) {
     return res.status(403).send("Invalid email or password.");
   }
   res.cookie("user_id", user.id);
@@ -218,6 +215,7 @@ app.post("/login", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
   const userId = generateRandomString();
   // Empty email or password
   if (!email || !password) {
@@ -230,18 +228,18 @@ app.post("/register", (req, res) => {
     users[userId] = {
       id: userId,
       email,
-      password,
+      password: hashedPassword,
     };
+
     res.cookie("user_id", userId);
     res.redirect("/urls");
   }
 });
+
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/login");
 });
-
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
