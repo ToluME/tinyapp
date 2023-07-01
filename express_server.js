@@ -1,8 +1,10 @@
 const express = require("express");
-const cookieSession = require('cookie-session');
+const cookieSession = require("cookie-session");
 const app = express();
 const PORT = 8080; // default port 8080
 const bcrypt = require("bcryptjs");
+const getUserByEmail = require("./helpers");
+
 
 app.set("view engine", "ejs"); // Set view engine
 
@@ -42,15 +44,7 @@ const generateRandomString = function() {
   
   return randomString;
 };
-const getUserByEmail = function(email) {
-  const usersArray = Object.values(users);//converts users object to an array
-  for (let user of usersArray) {
-    if (user.email === email) {
-      return user;
-    }
-  }
-  return null;
-};
+
 const urlsForUser = function(id) {
   const userURLs = {};
   for (const key in urlDatabase) {
@@ -209,7 +203,7 @@ app.get('/register', (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const user = getUserByEmail(email);
+  const user = getUserByEmail(email, users);
   // User not found or password doesn't match
   if (!user || !bcrypt.compareSync(password, user.password)) {
     return res.status(403).send("Invalid email or password.");
@@ -226,7 +220,7 @@ app.post("/register", (req, res) => {
   // Empty email or password
   if (!email || !password) {
     return res.status(400).send("Email and password cannot be empty..");
-  } else if (getUserByEmail(email)) {
+  } else if (getUserByEmail(email, users)) {
     // Email already exists
     return res.status(400).send("Email is already registered.");
   } else {
