@@ -3,7 +3,7 @@ const cookieSession = require("cookie-session");
 const app = express();
 const PORT = 8080; // default port 8080
 const bcrypt = require("bcryptjs");
-const getUserByEmail = require("./helpers");
+const helpers = require("./helpers");
 
 
 app.set("view engine", "ejs"); // Set view engine
@@ -32,19 +32,6 @@ const users = {
   },
 };
 
-const generateRandomString = function() {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const length = 6;
-  let randomString = '';
-  
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    randomString += characters.charAt(randomIndex);
-  }
-  
-  return randomString;
-};
-
 const urlsForUser = function(id) {
   const userURLs = {};
   for (const key in urlDatabase) {
@@ -67,6 +54,9 @@ app.use(cookieSession({
 app.use((req, res, next) => {
   res.locals.user = users[req.session.user_id];
   next();
+});
+app.get("/", (req, res) => {
+  res.send("Hello!");
 });
 
 app.get("/urls", (req, res) => {
@@ -97,7 +87,7 @@ app.get("/urls/:id", (req, res) => {
   const templatevars = {
     user: user,
     id: id,
-    longURL: urlEntry.longURL,
+    longURL: urlEntry && urlEntry.longURL,
   };
   if (!user) {
     // User is not logged in
@@ -114,15 +104,30 @@ app.get("/urls/:id", (req, res) => {
   }
   res.render("urls_show", templatevars);
 });
+app.get("/urls/:id/edit", (req, res) => {
+  const userId = req.session.user_id;
+  const user = users[userId];
+  const id = req.params.id;
+  const urlEntry = urlDatabase[id];
+  
+  const templateVars = {
+    user: user,
+    id: id,
+    longURL: urlEntry && urlEntry.longURL,
+  };
+  
+  res.render("urls_show", templateVars);
+});
 
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   const urlEntry = urlDatabase[id];
-  if (!urlEntry || !urlEntry.longURL) {
+  const longURL = urlEntry && urlEntry.longURL;
+  if (!urlEntry || !longURL) {
     // Shortened URL does not exist
     return res.status(404).send("No URL with provided id in our database.");
   }
-  res.redirect(urlEntry.longURL);
+  res.redirect(longURL);
 });
 
 app.post("/urls", (req, res) => {
@@ -131,7 +136,7 @@ app.post("/urls", (req, res) => {
   if (!userId) {
     return res.status(401).send("Login required");
   }
-  const id = generateRandomString();
+  const id = helpers.generateRandomString();
   const longURL = req.body.longURL;
  
   urlDatabase[id] = {
@@ -203,7 +208,7 @@ app.get('/register', (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const user = getUserByEmail(email, users);
+  const user = helpers.getUserByEmail(email, users);
   // User not found or password doesn't match
   if (!user || !bcrypt.compareSync(password, user.password)) {
     return res.status(403).send("Invalid email or password.");
@@ -216,11 +221,11 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
-  const userId = generateRandomString();
+  const userId = helpers.generateRandomString();
   // Empty email or password
   if (!email || !password) {
     return res.status(400).send("Email and password cannot be empty..");
-  } else if (getUserByEmail(email, users)) {
+  } else if (helpers.getUserByEmail(email, users)) {
     // Email already exists
     return res.status(400).send("Email is already registered.");
   } else {
